@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>4/25 横浜FM戦 イベント&フットボールタイムテーブル v6</title>
+<title>4/25 横浜FM戦 イベント&フットボールタイムテーブル v10</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -12,15 +12,15 @@
 <style>
   @page { size: A3 landscape; margin: 8mm; }
   * { box-sizing: border-box; }
-  body { margin:0; font-family:'Noto Sans JP',sans-serif; background:#f8fafc; color:#111827; }
-  .page { width:100vw; max-width:none; min-height:100vh; margin:0; padding:16px 18px; }
-  .head { display:flex; justify-content:space-between; gap:16px; align-items:flex-end; margin-bottom:12px; }
+  body { margin:0; font-family:'Noto Sans JP',sans-serif; background:#f8fafc; color:#111827; overflow:hidden; }
+  .page { width:100%; height:100vh; max-width:none; min-height:100vh; margin:0; padding:12px; overflow:hidden; display:flex; flex-direction:column; }
+  .head { display:flex; justify-content:space-between; gap:12px; align-items:flex-end; margin:0 0 8px; flex:0 0 auto; }
   .eyebrow { font-size:12px; font-weight:800; letter-spacing:.16em; color:#b91c1c; text-transform:uppercase; }
-  h1 { margin:4px 0 0; font-size:34px; line-height:1.2; }
+  h1 { margin:4px 0 0; font-size:32px; line-height:1.15; }
   .meta { display:flex; gap:10px; flex-wrap:wrap; font-size:14px; color:#475569; margin-top:8px; }
   .card { background:#ffffff; border:1px solid #d1d5db; border-radius:14px; box-shadow:0 4px 16px rgba(15,23,42,.05); }
-  .top-grid { display:grid; grid-template-columns: 1.15fr .85fr; gap:12px; margin-bottom:12px; }
-  .section { padding:14px; }
+  .top-grid { display:grid; grid-template-columns: 1.15fr .85fr; gap:8px; margin:0 0 8px; flex:0 0 auto; }
+  .section { padding:10px 12px; }
   .section-title { font-size:15px; font-weight:800; margin-bottom:10px; }
   .summary-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
   .summary-item { border:1px solid #d1d5db; border-left:5px solid #6b7280; border-radius:10px; padding:8px 10px; background:#fff; display:flex; flex-direction:column; gap:3px; }
@@ -32,8 +32,8 @@
   .dot { width:14px; height:14px; border-radius:4px; border:1px solid #d1d5db; background:#f3f4f6; }
   .dot.red { background:#fef2f2; border-color:#dc2626; }
 
-  .board-frame { width:100%; overflow:hidden; border-radius:14px; border:1px solid #d1d5db; background:#fff; box-shadow:0 6px 18px rgba(15,23,42,.06); position:relative; }
-  .board-scale { transform-origin: top left; }
+  .board-frame { width:100%; flex:1 1 auto; min-height:0; overflow:hidden; border-radius:14px; border:1px solid #d1d5db; background:#fff; box-shadow:0 6px 18px rgba(15,23,42,.06); position:relative; }
+  .board-scale { transform-origin: top left; will-change: transform; width:0; height:0; }
   .board { position:relative; width:1883px; height:848px; background:#fff; }
   .corner, .header-cell { position:absolute; top:0; height:48px; display:flex; align-items:center; justify-content:center; padding:6px; text-align:center; font-size:13px; line-height:1.25; font-weight:800; color:#fff; background:#111827; border-right:1px solid rgba(255,255,255,.12); border-bottom:1px solid rgba(255,255,255,.12); z-index:3; }
   .corner { left:0; width:68px; }
@@ -45,6 +45,10 @@
   .time-label { position:absolute; left:0; width:68px; height:50px; display:flex; justify-content:center; align-items:flex-start; padding-top:8px; font-size:13px; color:#64748b; font-weight:800; background:#f8fafc; border-right:1px solid #e5e7eb; }
   .marker { position:absolute; left:0; width:1883px; border-top:2px dashed; z-index:2; }
   .marker span { position:absolute; left:74px; top:-13px; font-size:11px; font-weight:800; color:#fff; padding:4px 9px; border-radius:999px; }
+
+  :root { --text-fix-x: 1; }
+  .text-fix-center { display:inline-block; transform:scaleX(var(--text-fix-x)); transform-origin:center center; }
+  .group-time, .group-item-title, .group-item-sub { transform:scaleX(var(--text-fix-x)); transform-origin:left top; }
 
   .group-card { position:absolute; border:1px solid #d1d5db; border-top:4px solid #6b7280; border-radius:12px; padding:6px; background:#fff; z-index:4; overflow:hidden; box-shadow:0 2px 8px rgba(15,23,42,.05); }
   .group-card.is-default { background:#fff; }
@@ -63,13 +67,15 @@
 
   .toolbar { display:flex; gap:10px; align-items:center; }
   .toolbar button { border:none; background:#111827; color:#fff; font-weight:800; font-size:13px; padding:10px 14px; border-radius:10px; cursor:pointer; }
+  @media (max-width: 1100px) { .top-grid { grid-template-columns:1fr; } h1 { font-size:26px; } .meta { font-size:12px; } }
+  @media (max-height: 900px) { h1 { font-size:28px; } .section { padding:8px 10px; } .foot-note { font-size:11px; line-height:1.45; } .summary-body { font-size:11px; } .section-title { font-size:14px; } }
   .toolbar button.secondary { background:#475569; }
   .toolbar button:hover { opacity:.92; }
   @media print {
-    body { background:#fff; }
-    .page { width:auto; max-width:none; min-height:auto; padding:0; }
+    body { background:#fff; overflow:visible; }
+    .page { width:auto; height:auto; max-width:none; min-height:auto; padding:0; overflow:visible; }
     .card { box-shadow:none; }
-    .board-frame { border-color:#cbd5e1; box-shadow:none; }
+    .board-frame { width:100%; margin-left:0; margin-right:0; border-color:#cbd5e1; box-shadow:none; }
     .top-grid { gap:6px; margin-bottom:6px; }
     .head { margin-bottom:6px; }
     .toolbar { display:none; }
@@ -133,7 +139,7 @@
           <div class="vline" style="left:68px"></div><div class="vline" style="left:233px"></div><div class="vline" style="left:398px"></div><div class="vline" style="left:563px"></div><div class="vline" style="left:728px"></div><div class="vline" style="left:893px"></div><div class="vline" style="left:1058px"></div><div class="vline" style="left:1223px"></div><div class="vline" style="left:1388px"></div><div class="vline" style="left:1553px"></div><div class="vline" style="left:1718px"></div><div class="vline" style="left:1883px"></div>
           <div class="time-label" style="top:48px">09:00</div><div class="time-label" style="top:98px">09:30</div><div class="time-label" style="top:148px">10:00</div><div class="time-label" style="top:198px">10:30</div><div class="time-label" style="top:248px">11:00</div><div class="time-label" style="top:298px">11:30</div><div class="time-label" style="top:348px">12:00</div><div class="time-label" style="top:398px">12:30</div><div class="time-label" style="top:448px">13:00</div><div class="time-label" style="top:498px">13:30</div><div class="time-label" style="top:548px">14:00</div><div class="time-label" style="top:598px">14:30</div><div class="time-label" style="top:648px">15:00</div><div class="time-label" style="top:698px">15:30</div><div class="time-label" style="top:748px">16:00</div><div class="time-label" style="top:798px">16:30</div>
           <div class="marker" style="top:248.0px;border-top-color:#dc262655;"><span style="background:#dc2626">11:00 開場</span></div><div class="marker" style="top:548.0px;border-top-color:#11182755;z-index:30;"><span style="background:#111827">14:00 KICK OFF</span></div><div class="marker" style="top:648.0px;border-top-color:#1d4ed855;"><span style="background:#1d4ed8">15:00 HT終了目安</span></div><div class="marker" style="top:748.0px;border-top-color:#04785755;"><span style="background:#047857">16:00 試合終了目安</span></div>
-          <div class="group-card is-default" style="left:74.0px;top:152.0px;width:153.0px;height:392.0px;border-top-color:#6b7280;"><div class="group-time">10:00–14:00</div><div class="group-items" style=""><div class="group-item is-default"><div class="group-item-title">国大セミナー</div><div class="group-item-sub">オリジナル立体シール作り / 最終受付13:20</div></div><div class="group-item is-default"><div class="group-item-title">イコム</div><div class="group-item-sub">トランクデイズ抽選会</div></div><div class="group-item is-default"><div class="group-item-title">明治安田</div><div class="group-item-sub">血管年齢測定会</div></div><div class="group-item is-default"><div class="group-item-title">MDP特設ブース</div><div class="group-item-sub">場外南広場特設ブース</div></div></div></div><div class="group-card is-default" style="left:239.0px;top:152.0px;width:73.5px;height:392.0px;border-top-color:#6b7280;"><div class="group-time">10:00–14:00</div><div class="group-items" style=""><div class="group-item is-default"><div class="group-item-title">ネーム&amp;ナンバー受付</div><div class="group-item-sub">レジブース横 / 受付のみ</div></div></div></div><div class="group-card is-default" style="left:318.5px;top:152.0px;width:73.5px;height:642.0px;border-top-color:#6b7280;"><div class="group-time">10:00–16:30</div><div class="group-items" style=""><div class="group-item is-default"><div class="group-item-title">MDP販売</div><div class="group-item-sub">場外南広場ファンショップ内</div></div></div></div><div class="group-card is-highlight" style="left:404.0px;top:152.0px;width:153.0px;height:392.0px;border-top-color:#dc2626;"><div class="group-time">10:00–14:00</div><div class="group-items" style=""><div class="group-item is-highlight"><div class="group-item-title">ビリッカー</div><div class="group-item-sub">サッカー×ビリヤード</div></div><div class="group-item is-highlight"><div class="group-item-title">フットダーツ</div><div class="group-item-sub">サッカー×ダーツ</div></div><div class="group-item is-highlight"><div class="group-item-title">1vs1</div><div class="group-item-sub">ストリートサッカー(PANNA)</div></div><div class="group-item is-highlight"><div class="group-item-title">3vs3</div><div class="group-item-sub">ストリートサッカー</div></div><div class="group-item is-highlight"><div class="group-item-title">サブサッカー</div><div class="group-item-sub">サッカー×テーブルゲーム</div></div><div class="group-item is-highlight"><div class="group-item-title">ドリブルゲーム</div><div class="group-item-sub">障害物コース体験</div></div></div></div><div class="group-card is-highlight" style="left:569.0px;top:152.0px;width:153.0px;height:392.0px;border-top-color:#dc2626;"><div class="group-time">10:00–14:00</div><div class="group-items" style=""><div class="group-item is-highlight"><div class="group-item-title">フットゴルフ</div><div class="group-item-sub">サッカー×ゴルフ</div></div></div></div><div class="group-card is-highlight" style="left:734.0px;top:152.0px;width:153.0px;height:92.0px;border-top-color:#dc2626;"><div class="group-time">10:00–11:00</div><div class="group-items" style=""><div class="group-item is-highlight"><div class="group-item-title">エンジョイ!親子サッカー!</div><div class="group-item-sub">1回目 / 埼玉スタジアム2002 第2グラウンド</div></div></div></div><div class="group-card is-highlight" style="left:734.0px;top:302.0px;width:153.0px;height:92.0px;border-top-color:#dc2626;"><div class="group-time">11:30–12:30</div><div class="group-items" style=""><div class="group-item is-highlight"><div class="group-item-title">エンジョイ!親子サッカー!</div><div class="group-item-sub">2回目 / 埼玉スタジアム2002 第2グラウンド</div></div></div></div><div class="group-card is-highlight" style="left:899.0px;top:52.0px;width:153.0px;height:392.0px;border-top-color:#dc2626;"><div class="group-time">09:00–13:00</div><div class="group-items" style=""><div class="group-item is-highlight"><div class="group-item-title">ミニサッカー大会</div><div class="group-item-sub">埼玉スタジアム2002 第3グラウンド</div></div></div></div><div class="group-card is-highlight" style="left:1064.0px;top:52.0px;width:153.0px;height:392.0px;border-top-color:#dc2626;"><div class="group-time">09:00–13:00</div><div class="group-items" style=""><div class="group-item is-highlight"><div class="group-item-title">PK大会</div><div class="group-item-sub">埼玉スタジアム2002 第4グラウンド</div></div></div></div><div class="group-card is-default" style="left:1229.0px;top:252.0px;width:153.0px;height:292.0px;border-top-color:#6b7280;"><div class="group-time">11:00–14:00</div><div class="group-items" style=""><div class="group-item is-default"><div class="group-item-title">ホームタウン&amp;ハートフル</div><div class="group-item-sub">シュートチャレンジ / レディア募金受付</div></div><div class="group-item is-default"><div class="group-item-title">さいたま市ブース</div><div class="group-item-sub">みんなのアプリPR / デジタル抽選会</div></div><div class="group-item is-default"><div class="group-item-title">埼玉県ブース</div><div class="group-item-sub">起き上がり小法師の絵付け体験</div></div><div class="group-item is-default"><div class="group-item-title">SFP×SDGsブース</div><div class="group-item-sub">プラ製袋回収BOX / エコトークン特典</div></div><div class="group-item is-default"><div class="group-item-title">キャップDEまつり</div><div class="group-item-sub">SFP×SDGsブース内</div></div><div class="group-item is-default"><div class="group-item-title">シーズンチケット問合せ</div><div class="group-item-sub">南門チケットブース横</div></div></div></div><div class="group-card is-default" style="left:1394.0px;top:252.0px;width:153.0px;height:542.0px;border-top-color:#6b7280;"><div class="group-time">11:00–16:30</div><div class="group-items" style=""><div class="group-item is-default"><div class="group-item-title">ポイント交換</div><div class="group-item-sub">南門内ペデストリアンデッキ下</div></div><div class="group-item is-default"><div class="group-item-title">来場ポイント登録</div><div class="group-item-sub">南門内ペデ下 / 北門内案内所横</div></div><div class="group-item is-default"><div class="group-item-title">REGULAR会員 入会特典引換</div><div class="group-item-sub">南門内ペデストリアンデッキ下</div></div><div class="group-item is-default"><div class="group-item-title">荷物一時預かり</div><div class="group-item-sub">南門内ペデストリアンデッキ下</div></div><div class="group-item is-default"><div class="group-item-title">サポートデスク</div><div class="group-item-sub">南門内ペデストリアンデッキ下</div></div></div></div><div class="group-card is-default" style="left:1559.0px;top:252.0px;width:73.5px;height:392.0px;border-top-color:#6b7280;"><div class="group-time">11:00–15:00</div><div class="group-items" style=""><div class="group-item is-default"><div class="group-item-title">デザインチケット引換</div><div class="group-item-sub">A4ゲート内特設デスク</div></div><div class="group-item is-default"><div class="group-item-title">レディア募金</div><div class="group-item-sub">メイン/バックロアーインフォメーション</div></div></div></div><div class="group-card is-default" style="left:1638.5px;top:252.0px;width:73.5px;height:592.0px;border-top-color:#6b7280;"><div class="group-time">11:00–17:00</div><div class="group-items" style=""><div class="group-item is-default"><div class="group-item-title">障がい者アート展</div><div class="group-item-sub">A7付近 / A8ショーケース</div></div><div class="group-item is-default"><div class="group-item-title">JA展示</div><div class="group-item-sub">A3ゲート付近</div></div><div class="group-item is-default"><div class="group-item-title">サステナブル来場展示</div><div class="group-item-sub">A4ゲート付近</div></div></div></div><div class="group-card is-default" style="left:1724px;top:252.0px;width:153px;height:542.0px;border-top-color:#6b7280;"><div class="group-time">11:00–16:30</div><div class="group-items" style="padding-top:92px;"><div class="group-item is-default"><div class="group-item-title">MDP販売</div><div class="group-item-sub">11:00–16:30 / A2ゲート付近・B3ゲート付近・C7ゲート付近</div></div><div class="group-item is-default"><div class="group-item-title">ネーム&amp;ナンバー受取</div><div class="group-item-sub">11:00–15:00 / C7ゲート217付近</div></div></div></div><div class="group-card is-highlight" style="left:1733px;top:302.0px;width:135px;height:84px;border-top-color:#dc2626;z-index:8; background:#fff; box-shadow:0 6px 14px rgba(220,38,38,.12);"><div class="group-time">11:30–12:00</div><div class="group-items" style=""><div class="group-item is-highlight"><div class="group-item-title">URAWA KIDS MATCH</div><div class="group-item-sub">メインピッチ / 11:35頃キックオフ</div></div></div></div>
+          <div class="group-card is-default" style="left:74.0px;top:152.0px;width:153.0px;height:392.0px;border-top-color:#6b7280;"><div class="group-time">10:00–14:00</div><div class="group-items" style="padding-top:118px;"><div class="group-item is-default"><div class="group-item-title">国大セミナー</div><div class="group-item-sub">オリジナル立体シール作り / 最終受付13:20</div></div><div class="group-item is-default"><div class="group-item-title">イコム</div><div class="group-item-sub">トランクデイズ抽選会</div></div><div class="group-item is-default"><div class="group-item-title">明治安田</div><div class="group-item-sub">血管年齢測定会</div></div><div class="group-item is-default"><div class="group-item-title">MDP特設ブース</div><div class="group-item-sub">場外南広場特設ブース</div></div></div></div><div class="group-card is-highlight short-overlay" style="left:78px;top:298px;width:145px;height:100px;border-top-color:#dc2626;z-index:8;background:#fff;box-shadow:0 6px 14px rgba(220,38,38,.12);overflow:visible;"><div class="group-time">11:30–12:00</div><div class="group-items" style=""><div class="group-item is-highlight"><div class="group-item-title">POLUS CM撮影</div><div class="group-item-sub">南広場</div></div></div></div><div class="group-card is-default" style="left:239.0px;top:152.0px;width:73.5px;height:392.0px;border-top-color:#6b7280;"><div class="group-time">10:00–14:00</div><div class="group-items" style=""><div class="group-item is-default"><div class="group-item-title">ネーム&amp;ナンバー受付</div><div class="group-item-sub">レジブース横 / 受付のみ</div></div></div></div><div class="group-card is-default" style="left:318.5px;top:152.0px;width:73.5px;height:642.0px;border-top-color:#6b7280;"><div class="group-time">10:00–16:30</div><div class="group-items" style=""><div class="group-item is-default"><div class="group-item-title">MDP販売</div><div class="group-item-sub">場外南広場ファンショップ内</div></div></div></div><div class="group-card is-highlight" style="left:404.0px;top:152.0px;width:153.0px;height:392.0px;border-top-color:#dc2626;"><div class="group-time">10:00–14:00</div><div class="group-items" style=""><div class="group-item is-highlight"><div class="group-item-title">ビリッカー</div><div class="group-item-sub">サッカー×ビリヤード</div></div><div class="group-item is-highlight"><div class="group-item-title">フットダーツ</div><div class="group-item-sub">サッカー×ダーツ</div></div><div class="group-item is-highlight"><div class="group-item-title">1vs1</div><div class="group-item-sub">ストリートサッカー(PANNA)</div></div><div class="group-item is-highlight"><div class="group-item-title">3vs3</div><div class="group-item-sub">ストリートサッカー</div></div><div class="group-item is-highlight"><div class="group-item-title">サブサッカー</div><div class="group-item-sub">サッカー×テーブルゲーム</div></div><div class="group-item is-highlight"><div class="group-item-title">ドリブルゲーム</div><div class="group-item-sub">障害物コース体験</div></div></div></div><div class="group-card is-highlight" style="left:569.0px;top:152.0px;width:153.0px;height:392.0px;border-top-color:#dc2626;"><div class="group-time">10:00–14:00</div><div class="group-items" style=""><div class="group-item is-highlight"><div class="group-item-title">フットゴルフ</div><div class="group-item-sub">サッカー×ゴルフ</div></div></div></div><div class="group-card is-highlight" style="left:734.0px;top:152.0px;width:153.0px;height:92.0px;border-top-color:#dc2626;"><div class="group-time">10:00–11:00</div><div class="group-items" style=""><div class="group-item is-highlight"><div class="group-item-title">エンジョイ!親子サッカー!</div><div class="group-item-sub">1回目 / 埼玉スタジアム2002 第2グラウンド</div></div></div></div><div class="group-card is-highlight" style="left:734.0px;top:302.0px;width:153.0px;height:92.0px;border-top-color:#dc2626;"><div class="group-time">11:30–12:30</div><div class="group-items" style=""><div class="group-item is-highlight"><div class="group-item-title">エンジョイ!親子サッカー!</div><div class="group-item-sub">2回目 / 埼玉スタジアム2002 第2グラウンド</div></div></div></div><div class="group-card is-highlight" style="left:899.0px;top:52.0px;width:153.0px;height:392.0px;border-top-color:#dc2626;"><div class="group-time">09:00–13:00</div><div class="group-items" style=""><div class="group-item is-highlight"><div class="group-item-title">ミニサッカー大会</div><div class="group-item-sub">埼玉スタジアム2002 第3グラウンド</div></div></div></div><div class="group-card is-highlight" style="left:1064.0px;top:52.0px;width:153.0px;height:392.0px;border-top-color:#dc2626;"><div class="group-time">09:00–13:00</div><div class="group-items" style=""><div class="group-item is-highlight"><div class="group-item-title">PK大会</div><div class="group-item-sub">埼玉スタジアム2002 第4グラウンド</div></div></div></div><div class="group-card is-default" style="left:1229.0px;top:252.0px;width:153.0px;height:292.0px;border-top-color:#6b7280;"><div class="group-time">11:00–14:00</div><div class="group-items" style=""><div class="group-item is-default"><div class="group-item-title">ホームタウン&amp;ハートフル</div><div class="group-item-sub">シュートチャレンジ / レディア募金受付</div></div><div class="group-item is-default"><div class="group-item-title">さいたま市ブース</div><div class="group-item-sub">みんなのアプリPR / デジタル抽選会</div></div><div class="group-item is-default"><div class="group-item-title">埼玉県ブース</div><div class="group-item-sub">起き上がり小法師の絵付け体験</div></div><div class="group-item is-default"><div class="group-item-title">SFP×SDGsブース</div><div class="group-item-sub">プラ製袋回収BOX / エコトークン特典</div></div><div class="group-item is-default"><div class="group-item-title">キャップDEまつり</div><div class="group-item-sub">SFP×SDGsブース内</div></div><div class="group-item is-default"><div class="group-item-title">シーズンチケット問合せ</div><div class="group-item-sub">南門チケットブース横</div></div></div></div><div class="group-card is-default" style="left:1394.0px;top:252.0px;width:153.0px;height:542.0px;border-top-color:#6b7280;"><div class="group-time">11:00–16:30</div><div class="group-items" style=""><div class="group-item is-default"><div class="group-item-title">ポイント交換</div><div class="group-item-sub">南門内ペデストリアンデッキ下</div></div><div class="group-item is-default"><div class="group-item-title">来場ポイント登録</div><div class="group-item-sub">南門内ペデ下 / 北門内案内所横</div></div><div class="group-item is-default"><div class="group-item-title">REGULAR会員 入会特典引換</div><div class="group-item-sub">南門内ペデストリアンデッキ下</div></div><div class="group-item is-default"><div class="group-item-title">荷物一時預かり</div><div class="group-item-sub">南門内ペデストリアンデッキ下</div></div><div class="group-item is-default"><div class="group-item-title">サポートデスク</div><div class="group-item-sub">南門内ペデストリアンデッキ下</div></div></div></div><div class="group-card is-default" style="left:1559.0px;top:252.0px;width:73.5px;height:392.0px;border-top-color:#6b7280;"><div class="group-time">11:00–15:00</div><div class="group-items" style=""><div class="group-item is-default"><div class="group-item-title">デザインチケット引換</div><div class="group-item-sub">A4ゲート内特設デスク</div></div><div class="group-item is-default"><div class="group-item-title">レディア募金</div><div class="group-item-sub">メイン/バックロアーインフォメーション</div></div></div></div><div class="group-card is-default" style="left:1638.5px;top:252.0px;width:73.5px;height:592.0px;border-top-color:#6b7280;"><div class="group-time">11:00–17:00</div><div class="group-items" style=""><div class="group-item is-default"><div class="group-item-title">障がい者アート展</div><div class="group-item-sub">A7付近 / A8ショーケース</div></div><div class="group-item is-default"><div class="group-item-title">JA展示</div><div class="group-item-sub">A3ゲート付近</div></div><div class="group-item is-default"><div class="group-item-title">サステナブル来場展示</div><div class="group-item-sub">A4ゲート付近</div></div></div></div><div class="group-card is-default" style="left:1724px;top:252.0px;width:153px;height:542.0px;border-top-color:#6b7280;"><div class="group-time">11:00–16:30</div><div class="group-items" style="padding-top:118px;"><div class="group-item is-default"><div class="group-item-title">MDP販売</div><div class="group-item-sub">11:00–16:30 / A2ゲート付近・B3ゲート付近・C7ゲート付近</div></div><div class="group-item is-default"><div class="group-item-title">ネーム&amp;ナンバー受取</div><div class="group-item-sub">11:00–15:00 / C7ゲート217付近</div></div></div></div><div class="group-card is-highlight short-overlay" style="left:1728px;top:298.0px;width:145px;height:102px;border-top-color:#dc2626;z-index:8; background:#fff; box-shadow:0 6px 14px rgba(220,38,38,.12);overflow:visible;"><div class="group-time">11:30–12:00</div><div class="group-items" style=""><div class="group-item is-highlight"><div class="group-item-title">URAWA KIDS MATCH</div><div class="group-item-sub">メインピッチ / 11:35頃キックオフ</div></div></div></div>
         </div>
       </div>
     </div>
@@ -145,19 +151,38 @@
   const board = document.getElementById('board');
   const page = document.querySelector('.page');
 
+  function wrapBoardText() {
+    document.querySelectorAll('.corner, .header-cell, .time-label, .marker span').forEach(el => {
+      if (el.dataset.textFixed === '1') return;
+      el.innerHTML = `<span class="text-fix-center">${el.innerHTML}</span>`;
+      el.dataset.textFixed = '1';
+    });
+  }
+
   function fitBoard() {
-    const available = frame.clientWidth;
     const naturalW = board.offsetWidth;
     const naturalH = board.offsetHeight;
-    const scale = Math.min(1, available / naturalW);
-    scaleWrap.style.transform = `scale(${scale})`;
-    frame.style.height = (naturalH * scale + 2) + 'px';
+    const frameTop = frame.getBoundingClientRect().top;
+    const availableW = Math.max(320, frame.clientWidth);
+    const availableH = Math.max(220, window.innerHeight - frameTop - 8);
+    const scaleX = availableW / naturalW;
+    const scaleY = availableH / naturalH;
+    const textFixX = scaleX === 0 ? 1 : (scaleY / scaleX);
+    document.documentElement.style.setProperty('--text-fix-x', textFixX.toFixed(4));
+    scaleWrap.style.transform = `scale(${scaleX}, ${scaleY})`;
+    scaleWrap.style.width = availableW + 'px';
+    scaleWrap.style.height = availableH + 'px';
+    frame.style.height = (availableH + 2) + 'px';
   }
 
   async function renderPageCanvas() {
     const prevTransform = scaleWrap.style.transform;
-    const prevHeight = frame.style.height;
-    scaleWrap.style.transform = 'scale(1)';
+    const prevWidth = scaleWrap.style.width;
+    const prevHeight = scaleWrap.style.height;
+    const prevFrameHeight = frame.style.height;
+    scaleWrap.style.transform = 'scale(1,1)';
+    scaleWrap.style.width = board.offsetWidth + 'px';
+    scaleWrap.style.height = board.offsetHeight + 'px';
     frame.style.height = (board.offsetHeight + 2) + 'px';
     await new Promise(resolve => requestAnimationFrame(resolve));
     const canvas = await html2canvas(page, {
@@ -166,7 +191,9 @@
       scale: 2
     });
     scaleWrap.style.transform = prevTransform;
-    frame.style.height = prevHeight;
+    scaleWrap.style.width = prevWidth;
+    scaleWrap.style.height = prevHeight;
+    frame.style.height = prevFrameHeight;
     return canvas;
   }
 
@@ -209,6 +236,7 @@
     }
   }
 
+  wrapBoardText();
   window.addEventListener('load', fitBoard);
   window.addEventListener('resize', fitBoard);
   document.getElementById('downloadPng').addEventListener('click', downloadPng);
