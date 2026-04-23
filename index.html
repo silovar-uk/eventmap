@@ -1,246 +1,351 @@
 <!DOCTYPE html>
+
 <html lang="ja">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>4/25 横浜FM戦 イベント&フットボールタイムテーブル v10</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;800&display=swap" rel="stylesheet">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>4/25 横浜FM戦 イベント&amp;フットボールタイムテーブル v23</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
-  @page { size: A3 landscape; margin: 8mm; }
-  * { box-sizing: border-box; }
-  body { margin:0; font-family:'Noto Sans JP',sans-serif; background:#f8fafc; color:#111827; overflow:hidden; }
-  .page { width:100%; height:100vh; max-width:none; min-height:100vh; margin:0; padding:12px; overflow:hidden; display:flex; flex-direction:column; }
-  .head { display:flex; justify-content:space-between; gap:12px; align-items:flex-end; margin:0 0 8px; flex:0 0 auto; }
-  .eyebrow { font-size:12px; font-weight:800; letter-spacing:.16em; color:#b91c1c; text-transform:uppercase; }
-  h1 { margin:4px 0 0; font-size:32px; line-height:1.15; }
-  .meta { display:flex; gap:10px; flex-wrap:wrap; font-size:14px; color:#475569; margin-top:8px; }
-  .card { background:#ffffff; border:1px solid #d1d5db; border-radius:14px; box-shadow:0 4px 16px rgba(15,23,42,.05); }
-  .top-grid { display:grid; grid-template-columns: 1.15fr .85fr; gap:8px; margin:0 0 8px; flex:0 0 auto; }
-  .section { padding:10px 12px; }
-  .section-title { font-size:15px; font-weight:800; margin-bottom:10px; }
-  .summary-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-  .summary-item { border:1px solid #d1d5db; border-left:5px solid #6b7280; border-radius:10px; padding:8px 10px; background:#fff; display:flex; flex-direction:column; gap:3px; }
-  .summary-item.is-highlight { border-left-color:#dc2626; background:#fef2f2; }
-  .summary-title { font-size:13px; font-weight:800; }
-  .summary-body { font-size:12px; line-height:1.5; color:#334155; }
-  .legend { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:8px; }
-  .legend-item { display:flex; gap:8px; align-items:center; font-size:13px; color:#334155; }
-  .dot { width:14px; height:14px; border-radius:4px; border:1px solid #d1d5db; background:#f3f4f6; }
-  .dot.red { background:#fef2f2; border-color:#dc2626; }
-
-  .board-frame { width:100%; flex:1 1 auto; min-height:0; overflow:hidden; border-radius:14px; border:1px solid #d1d5db; background:#fff; box-shadow:0 6px 18px rgba(15,23,42,.06); position:relative; }
-  .board-scale { transform-origin: top left; will-change: transform; width:0; height:0; }
-  .board { position:relative; width:1883px; height:848px; background:#fff; }
-  .corner, .header-cell { position:absolute; top:0; height:48px; display:flex; align-items:center; justify-content:center; padding:6px; text-align:center; font-size:13px; line-height:1.25; font-weight:800; color:#fff; background:#111827; border-right:1px solid rgba(255,255,255,.12); border-bottom:1px solid rgba(255,255,255,.12); z-index:3; }
-  .corner { left:0; width:68px; }
-  .header-cell { }
-  .hline, .vline { position:absolute; background:#e5e7eb; }
-  .hline { left:68px; width:1815px; height:1px; }
-  .hline.major { background:#cbd5e1; }
-  .vline { top:0; width:1px; height:848px; }
-  .time-label { position:absolute; left:0; width:68px; height:50px; display:flex; justify-content:center; align-items:flex-start; padding-top:8px; font-size:13px; color:#64748b; font-weight:800; background:#f8fafc; border-right:1px solid #e5e7eb; }
-  .marker { position:absolute; left:0; width:1883px; border-top:2px dashed; z-index:2; }
-  .marker span { position:absolute; left:74px; top:-13px; font-size:11px; font-weight:800; color:#fff; padding:4px 9px; border-radius:999px; }
-
-  :root { --text-fix-x: 1; }
-  .text-fix-center { display:inline-block; transform:scaleX(var(--text-fix-x)); transform-origin:center center; }
-  .group-time, .group-item-title, .group-item-sub { transform:scaleX(var(--text-fix-x)); transform-origin:left top; }
-
-  .group-card { position:absolute; border:1px solid #d1d5db; border-top:4px solid #6b7280; border-radius:12px; padding:6px; background:#fff; z-index:4; overflow:hidden; box-shadow:0 2px 8px rgba(15,23,42,.05); }
-  .group-card.is-default { background:#fff; }
-  .group-card.is-highlight { background:#fff; }
-  .group-time { font-size:12px; font-weight:800; color:#374151; margin-bottom:6px; }
-  .group-items { display:grid; grid-template-columns:repeat(auto-fit, minmax(96px, 1fr)); gap:6px; align-content:start; }
-  .group-item { border-left:4px solid #6b7280; border-radius:8px; padding:6px 7px; min-height:52px; background:#f3f4f6; }
-  .group-item.is-highlight { border-left-color:#dc2626; background:#fef2f2; }
-  .group-item.is-default { border-left-color:#6b7280; background:#f3f4f6; }
-  .group-item-title { font-size:12px; line-height:1.28; font-weight:800; color:#111827; }
-  .group-item-sub { font-size:11px; line-height:1.4; color:#374151; margin-top:4px; }
-  .group-card.is-highlight .group-time, .group-item.is-highlight .group-item-title, .group-item.is-highlight .group-item-sub { color:#991b1b; }
-  .group-item.is-highlight .group-item-sub { color:#7f1d1d; }
-
-  .foot-note { margin-top:10px; padding:10px 12px; font-size:12px; color:#475569; line-height:1.65; }
-
-  .toolbar { display:flex; gap:10px; align-items:center; }
+  :root {
+    --pagePad: 16px;
+    --labelw: 72px;
+    --headerh: 50px;
+    --rowh: 42px;
+    --rows: 16;
+    --grayBg: #f3f4f6;
+    --grayBd: #6b7280;
+    --grayTx: #111827;
+    --redBg: #fef2f2;
+    --redBd: #dc2626;
+    --redTx: #991b1b;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:'Noto Sans JP',sans-serif; background:#f8fafc; color:#111827; }
+  .page { width:100%; min-height:100vh; padding:var(--pagePad); }
+  .head { display:flex; justify-content:space-between; align-items:flex-end; gap:12px; margin-bottom:10px; }
+  .eyebrow { font-size:11px; font-weight:800; letter-spacing:.16em; color:#b91c1c; text-transform:uppercase; }
+  h1 { margin:4px 0 0; font-size:clamp(24px, 2.1vw, 34px); line-height:1.12; }
+  .meta { display:flex; flex-wrap:wrap; gap:10px; margin-top:7px; font-size:13px; color:#475569; }
+  .toolbar { display:flex; gap:10px; flex-wrap:wrap; }
   .toolbar button { border:none; background:#111827; color:#fff; font-weight:800; font-size:13px; padding:10px 14px; border-radius:10px; cursor:pointer; }
-  @media (max-width: 1100px) { .top-grid { grid-template-columns:1fr; } h1 { font-size:26px; } .meta { font-size:12px; } }
-  @media (max-height: 900px) { h1 { font-size:28px; } .section { padding:8px 10px; } .foot-note { font-size:11px; line-height:1.45; } .summary-body { font-size:11px; } .section-title { font-size:14px; } }
   .toolbar button.secondary { background:#475569; }
-  .toolbar button:hover { opacity:.92; }
+  .card { background:#fff; border:1px solid #d1d5db; border-radius:16px; box-shadow:0 6px 20px rgba(15,23,42,.06); }
+  .top-grid { display:grid; grid-template-columns:1.1fr .9fr; gap:10px; margin-bottom:10px; }
+  .section { padding:12px 14px; }
+  .section-title { font-size:14px; font-weight:800; margin-bottom:10px; }
+  .section-sub { font-size:12px; color:#475569; line-height:1.55; margin-bottom:10px; }
+  .summary-grid { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:8px; }
+  .summary-item { border:1px solid #d1d5db; border-left:5px solid var(--grayBd); border-radius:12px; padding:9px 11px; background:#fff; }
+  .summary-item.is-highlight { background:var(--redBg); border-left-color:var(--redBd); }
+  .summary-title { font-size:12px; font-weight:800; margin-bottom:3px; }
+  .summary-body { font-size:11px; line-height:1.45; color:#334155; }
+  .legend { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px; }
+  .legend-item { display:flex; align-items:center; gap:8px; font-size:12px; color:#334155; }
+  .dot { width:14px; height:14px; border-radius:4px; background:var(--grayBg); border:1px solid #d1d5db; }
+  .dot.red { background:var(--redBg); border-color:var(--redBd); }
+  .note { font-size:11px; line-height:1.6; color:#475569; }
+
+  .board-wrap { padding:10px 0 0; overflow:hidden; }
+  .board {
+    position:relative;
+    min-width: 0;
+    width:100%;
+    display:grid;
+    grid-template-columns: var(--labelw) 1.78fr 1.28fr 1.16fr 1.12fr 1.08fr 1.08fr 1.52fr 0.78fr 0.66fr 0.66fr 0.66fr 0.78fr;
+    grid-template-rows: var(--headerh) calc(var(--rows) * var(--rowh));
+  }
+  .corner, .place-header {
+    display:flex; align-items:center; justify-content:center;
+    background:#111827; color:#fff; font-weight:800; font-size:12px; line-height:1.2;
+    text-align:center; padding:6px; border-right:1px solid rgba(255,255,255,.12); border-bottom:1px solid rgba(255,255,255,.12); z-index:4;
+  }
+  .corner { grid-column:1; grid-row:1; }
+  .place-header { grid-row:1; }
+  .body-time-labels { position:absolute; left:0; top:var(--headerh); width:var(--labelw); height:calc(var(--rows) * var(--rowh)); z-index:1; }
+  .time-label { position:absolute; left:0; width:100%; height:var(--rowh); display:flex; align-items:flex-start; justify-content:center; padding-top:8px; font-size:12px; font-weight:800; color:#64748b; background:#f8fafc; border-right:1px solid #e5e7eb; }
+  .body-lines { position:absolute; left:var(--labelw); right:0; top:var(--headerh); height:calc(var(--rows) * var(--rowh)); z-index:1; }
+  .time-line { position:absolute; left:0; width:100%; height:1px; background:#e5e7eb; }
+  .time-line.major { background:#cbd5e1; }
+  .time-marker { position:absolute; left:0; width:100%; border-top:2px dashed; z-index:6; pointer-events:none; }
+  .time-marker span { position:absolute; left:6px; top:-16px; padding:4px 10px; border-radius:999px; font-size:10px; font-weight:800; color:#fff; white-space:nowrap; box-shadow:0 4px 10px rgba(15,23,42,.14); }
+  .marker-open { border-top-color:#dc262655; } .marker-open span { background:#dc2626; }
+  .marker-kickoff { border-top-color:#11182766; z-index:20; } .marker-kickoff span { background:#111827; }
+  .marker-ht { border-top-color:#1d4ed855; } .marker-ht span { background:#1d4ed8; }
+  .marker-end { border-top-color:#04785755; } .marker-end span { background:#047857; }
+
+  .place-column { grid-row:2; position:relative; border-right:1px solid #e5e7eb; min-width:0; }
+  .place-column::before { content:''; position:absolute; left:0; right:0; top:0; bottom:0; background:transparent; }
+  .lane-grid { position:absolute; inset:0 6px 0 6px; display:grid; column-gap:6px; }
+  .lanes-1 { grid-template-columns:1fr; }
+  .lanes-2 { grid-template-columns:1fr 1fr; }
+  .lanes-3 { grid-template-columns:1fr 1fr 1fr; }
+  .lane { position:relative; min-width:0; }
+
+  .event-card { position:absolute; left:0; right:0; padding:6px; border:1px solid #d1d5db; border-top:4px solid var(--grayBd); border-radius:12px; background:#fff; box-shadow:0 2px 8px rgba(15,23,42,.05); overflow:hidden; z-index:3; }
+  .event-card.is-highlight { border-top-color:var(--redBd); }
+  .event-time { font-size:11px; font-weight:800; color:#374151; margin-bottom:5px; }
+  .event-card.is-highlight .event-time { color:var(--redTx); }
+  .event-items { display:grid; gap:6px; align-content:start; }
+  .event-item { border-left:4px solid var(--grayBd); background:var(--grayBg); border-radius:9px; padding:6px 7px; }
+  .event-card.is-highlight .event-item { border-left-color:var(--redBd); background:var(--redBg); }
+  .event-title { font-size:11px; font-weight:800; line-height:1.24; color:#111827; }
+  .event-sub { font-size:10px; line-height:1.3; color:#374151; margin-top:2px; }
+  .event-card.is-highlight .event-title, .event-card.is-highlight .event-sub { color:var(--redTx); }
+
+  .event-card.is-short { overflow:visible; z-index:8; }
+  .event-card.is-short::after {
+    content:'';
+    position:absolute;
+    left:18px;
+    bottom:-8px;
+    width:14px;
+    height:14px;
+    background:#fff;
+    border-right:1px solid #d1d5db;
+    border-bottom:1px solid #d1d5db;
+    transform:rotate(45deg);
+  }
+  .event-card.is-short .event-items { gap:0; }
+  .event-card.is-short .event-item { min-height:auto; }
+  .event-card.is-short .event-title,
+  .event-card.is-short .event-sub {
+    word-break: break-word;
+    overflow:visible;
+  }
+  .short-bubble {
+    position:absolute;
+    bottom:calc(100% + 12px);
+    left:0;
+    width:280px;
+    max-width:min(320px, 30vw);
+    background:#fff;
+    border:1px solid #d1d5db;
+    border-left:4px solid var(--grayBd);
+    border-radius:10px;
+    padding:8px 10px;
+    box-shadow:0 8px 18px rgba(15,23,42,.10);
+    z-index:9;
+  }
+  .short-bubble.align-right { left:auto; right:0; }
+  .event-card.is-highlight .short-bubble { background:var(--redBg); border-left-color:var(--redBd); }
+  .short-bubble-title { font-size:11px; font-weight:800; line-height:1.3; color:#111827; }
+  .short-bubble-sub { font-size:10px; line-height:1.42; color:#374151; margin-top:4px; white-space:normal; overflow-wrap:anywhere; }
+  .event-card.is-highlight .short-bubble-title,
+  .event-card.is-highlight .short-bubble-sub { color:var(--redTx); }
+
+  
+  .toolbar button.is-active { background:#b91c1c; }
+  .board.sub-collapsed {
+    min-width: 0;
+    grid-template-columns: var(--labelw) 2.08fr 1.34fr 1.18fr 1.14fr 1.12fr 1.12fr 1.82fr;
+  }
+  .board.sub-collapsed .gray-only-header,
+  .board.sub-collapsed .gray-only-col { display:none !important; }
+  .south-split .south-lanes { grid-template-columns: 1fr 1fr; }
+  .south-split .lane-gray { position:relative; }
+  .south-split .lane-red { position:relative; }
+  .south-split .lane-gray::before,
+  .south-split .lane-red::before {
+    position:absolute;
+    top:6px;
+    left:0;
+    font-size:10px;
+    font-weight:800;
+    letter-spacing:.04em;
+    z-index:2;
+  }
+  .south-split .lane-gray::before { content:'グレー'; color:#6b7280; }
+  .south-split .lane-red::before { content:'赤'; color:#dc2626; }
+  .south-split .lane-gray .event-card:first-child,
+  .south-split .lane-red .event-card:first-child { margin-top:12px; }
+
+  @media (max-width: 1400px) {
+    :root { --labelw: 66px; --rowh: 38px; }
+    .summary-grid { grid-template-columns:repeat(2, minmax(0,1fr)); }
+  }
+  @media (max-width: 1100px) {
+    :root { --labelw: 62px; --rowh: 36px; }
+    .top-grid { grid-template-columns:1fr; }
+    .summary-grid { grid-template-columns:repeat(2, minmax(0,1fr)); }
+    .board-wrap { overflow-x:auto; }
+    .board { min-width: 1380px; }
+  }
+  @media (max-width: 720px) {
+    .page { padding:10px; }
+    .head { flex-direction:column; align-items:flex-start; }
+    .summary-grid { grid-template-columns:1fr; }
+    .legend { grid-template-columns:1fr; }
+  }
   @media print {
-    body { background:#fff; overflow:visible; }
-    .page { width:auto; height:auto; max-width:none; min-height:auto; padding:0; overflow:visible; }
+    body { background:#fff; }
+    .page { padding:0; }
     .card { box-shadow:none; }
-    .board-frame { width:100%; margin-left:0; margin-right:0; border-color:#cbd5e1; box-shadow:none; }
-    .top-grid { gap:6px; margin-bottom:6px; }
-    .head { margin-bottom:6px; }
     .toolbar { display:none; }
   }
 </style>
 </head>
 <body>
-  <div class="page">
-    <div class="head">
-      <div>
-        <div class="eyebrow">Urawa Reds Matchday Schedule</div>
-        <h1>4/25(土) 横浜FM戦 イベント&フットボールタイムテーブル</h1>
-        <div class="meta">
-          <span>埼玉スタジアム2002</span>
-          <span>14:00 キックオフ</span>
-          <span>赤=撮影対象 / グレー=通常</span>
-          <span>印刷向け・スクロールなし表示</span>
+<div class="page" id="captureRoot">
+<div class="head">
+<div>
+<div class="eyebrow">Urawa Reds Matchday Schedule</div>
+<h1>4/25(土) 横浜FM戦 イベント&amp;フットボールタイムテーブル</h1>
+<div class="meta">
+<span>埼玉スタジアム2002</span>
+<span>14:00 キックオフ</span>
+<span>赤=撮影対象 / グレー=通常</span>
+<span>短時間イベントも表内に表示</span>
+</div>
+</div>
+<div class="toolbar">
+<button id="downloadPng" type="button">PNGダウンロード</button>
+<button class="secondary" id="downloadPdf" type="button">PDFダウンロード</button>
+<button class="secondary" id="toggleSubs" type="button">サブ列を非表示</button></div>
+</div>
+<div class="top-grid">
+<section class="card section">
+<div class="section-title">撮影対象イベントまとめ</div>
+<div class="section-sub">短時間イベントも表内の同じ位置に表示。南広場の短時間イベントとして、POLUS CM撮影に加えて「サタデーナイトJ」コラボレーションステージを追記。</div>
+<div class="summary-grid"><div class="summary-item is-highlight"><div class="summary-title">もみの木広場</div><div class="summary-body">ビリッカー / フットダーツ / 1vs1 / 3vs3 / サブサッカー / ドリブルゲーム</div></div><div class="summary-item is-highlight"><div class="summary-title">大門上池調節池</div><div class="summary-body">フットゴルフ</div></div><div class="summary-item is-highlight"><div class="summary-title">第2グラウンド</div><div class="summary-body">エンジョイ!親子サッカー!（10:00–11:00 / 11:30–12:30）</div></div><div class="summary-item is-highlight"><div class="summary-title">第3グラウンド</div><div class="summary-body">ミニサッカー大会（9:00–13:00）</div></div><div class="summary-item is-highlight"><div class="summary-title">第4グラウンド</div><div class="summary-body">PK大会（9:00–13:00）</div></div><div class="summary-item is-highlight"><div class="summary-title">場内ゲート/ピッチ</div><div class="summary-body">URAWA KIDS MATCH（11:30–12:00）</div></div></div>
+</section>
+<section class="card section">
+<div class="section-title">凡例 / 見方</div>
+<div class="legend">
+<div class="legend-item"><span class="dot"></span>通常イベント（グレー）</div>
+<div class="legend-item"><span class="dot red"></span>撮影対象イベント（赤）</div>
+</div>
+<div class="note">
+          ・短時間イベントも通常イベントと同じ本体内に表示。<br/>
+          ・同じ場所で時間が重なるものは、その列の中で自動的に横分割。<br/>
+          ・文字のゆがみを避けるため、変形スケールは使わず列内レーンで処理。<br/>
+          ・KICK OFF バッジは最前面表示のまま維持。
         </div>
-      </div>
-      <div class="toolbar">
-        <button type="button" id="downloadPng">PNGダウンロード</button>
-        <button type="button" id="downloadPdf" class="secondary">PDFダウンロード</button>
-      </div>
-    </div>
+</section>
+</div>
+<section class="card board-wrap">
+<div class="board">
+<div class="corner">時間</div>
+<div class="body-time-labels"><div class="time-label" style="top:50px;">09:00</div><div class="time-label" style="top:92px;">09:30</div><div class="time-label" style="top:134px;">10:00</div><div class="time-label" style="top:176px;">10:30</div><div class="time-label" style="top:218px;">11:00</div><div class="time-label" style="top:260px;">11:30</div><div class="time-label" style="top:302px;">12:00</div><div class="time-label" style="top:344px;">12:30</div><div class="time-label" style="top:386px;">13:00</div><div class="time-label" style="top:428px;">13:30</div><div class="time-label" style="top:470px;">14:00</div><div class="time-label" style="top:512px;">14:30</div><div class="time-label" style="top:554px;">15:00</div><div class="time-label" style="top:596px;">15:30</div><div class="time-label" style="top:638px;">16:00</div><div class="time-label" style="top:680px;">16:30</div></div>
+<div class="body-lines"><div class="time-line major" style="top:50px;"></div><div class="time-line" style="top:92px;"></div><div class="time-line major" style="top:134px;"></div><div class="time-line" style="top:176px;"></div><div class="time-line major" style="top:218px;"></div><div class="time-line" style="top:260px;"></div><div class="time-line major" style="top:302px;"></div><div class="time-line" style="top:344px;"></div><div class="time-line major" style="top:386px;"></div><div class="time-line" style="top:428px;"></div><div class="time-line major" style="top:470px;"></div><div class="time-line" style="top:512px;"></div><div class="time-line major" style="top:554px;"></div><div class="time-line" style="top:596px;"></div><div class="time-line major" style="top:638px;"></div><div class="time-line" style="top:680px;"></div><div class="time-line major" style="top:722px;"></div><div class="time-marker marker-open" style="top:218.0px;"><span>11:00 開場</span></div><div class="time-marker marker-kickoff" style="top:470.0px;"><span>14:00 KICK OFF</span></div><div class="time-marker marker-ht" style="top:554.0px;"><span>15:00 HT終了目安</span></div><div class="time-marker marker-end" style="top:638.0px;"><span>16:00 試合終了目安</span></div></div>
+<div class="place-header" style="grid-column:2;grid-row:1;">南広場</div><div class="place-header" style="grid-column:3;grid-row:1;">もみの木広場</div><div class="place-header" style="grid-column:4;grid-row:1;">大門上池調節池</div><div class="place-header" style="grid-column:5;grid-row:1;">第2G</div><div class="place-header" style="grid-column:6;grid-row:1;">第3G</div><div class="place-header" style="grid-column:7;grid-row:1;">第4G</div><div class="place-header" style="grid-column:8;grid-row:1;">場内ゲート/ピッチ</div><div class="place-header gray-only-header" style="grid-column:9;grid-row:1;">南広場②</div><div class="place-header gray-only-header" style="grid-column:10;grid-row:1;">南広場ファンショップ</div><div class="place-header gray-only-header" style="grid-column:11;grid-row:1;">南門内</div><div class="place-header gray-only-header" style="grid-column:12;grid-row:1;">ペデ下/案内所</div><div class="place-header gray-only-header" style="grid-column:13;grid-row:1;">場内コンコース</div><div class="place-column lane-count-1" style="grid-column:2;"><div class="lane-grid lanes-1">
 
-    <div class="top-grid">
-      <section class="card section">
-        <div class="section-title">撮影対象フットボールイベント まとめ</div>
-        <div class="summary-grid">
-          
-<div class="summary-item is-highlight"><span class="summary-title">もみの木広場</span><span class="summary-body">ビリッカー / フットダーツ / 1vs1 / 3vs3 / サブサッカー / ドリブルゲーム</span></div>
-<div class="summary-item is-highlight"><span class="summary-title">大門上池調節池広場</span><span class="summary-body">フットゴルフ</span></div>
-<div class="summary-item is-highlight"><span class="summary-title">第2グラウンド</span><span class="summary-body">エンジョイ!親子サッカー!（10:00〜11:00 / 11:30〜12:30）</span></div>
-<div class="summary-item is-highlight"><span class="summary-title">第3グラウンド</span><span class="summary-body">ミニサッカー大会（9:00〜13:00）</span></div>
-<div class="summary-item is-highlight"><span class="summary-title">第4グラウンド</span><span class="summary-body">PK大会（9:00〜13:00）</span></div>
-<div class="summary-item is-highlight"><span class="summary-title">場内ゲート/ピッチ</span><span class="summary-body">URAWA KIDS MATCH（11:30〜12:00）</span></div>
 
-        </div>
-      </section>
-      <section class="card section">
-        <div class="section-title">凡例</div>
-        <div class="legend">
-          <div class="legend-item"><span class="dot"></span>通常イベント（グレー）</div>
-          <div class="legend-item"><span class="dot red"></span>撮影対象イベント（赤）</div>
-        </div>
-        <div class="foot-note">
-          ・フットボールイベント（フットゴルフ含む）、親子サッカー・ミニサッカー大会・PK大会、URAWA KIDS MATCH を赤で表示。<br>
-          ・その他のイベントはグレーで統一。<br>
-          ・同時間帯の複数コンテンツは大枠の中で横並びに整理。<br>
-          ・場内ゲート/ピッチの 11:30〜12:00 は、URAWA KIDS MATCH を専用枠で見やすく調整。
-        </div>
-      </section>
-    </div>
+<div class="lane lane-1">
+<div class="event-card is-highlight is-short" style="top:256.0px;height:98px;">
+<div class="event-time">12:00–12:45</div>
+<div class="event-items"><div class="event-item"><div class="event-title">「サタデーナイトJ」コラボレーションステージ</div><div class="event-sub">埼玉スタジアム 南広場特設ステージ / 中根舞美氏(テレビ東京アナウンサー) / 波戸康広氏(横浜F・マリノスアンバサダー) / 坪井慶介氏(浦和レッズOB)</div></div></div>
+</div>
+</div></div></div><div class="place-column lane-count-1" style="grid-column:3;"><div class="lane-grid lanes-1"><div class="lane lane-1"><div class="event-card is-highlight" style="top:88.0px;height:328.0px;"><div class="event-time">10:00–14:00</div><div class="event-items"><div class="event-item"><div class="event-title">ビリッカー</div><div class="event-sub">サッカー×ビリヤード</div></div><div class="event-item"><div class="event-title">フットダーツ</div><div class="event-sub">サッカー×ダーツ</div></div><div class="event-item"><div class="event-title">1vs1</div><div class="event-sub">ストリートサッカー(PANNA)</div></div><div class="event-item"><div class="event-title">3vs3</div><div class="event-sub">ストリートサッカー</div></div><div class="event-item"><div class="event-title">サブサッカー</div><div class="event-sub">サッカー×テーブルゲーム</div></div><div class="event-item"><div class="event-title">ドリブルゲーム</div><div class="event-sub">障害物コース体験</div></div></div></div></div></div></div><div class="place-column lane-count-1" style="grid-column:4;"><div class="lane-grid lanes-1"><div class="lane lane-1"><div class="event-card is-highlight" style="top:88.0px;height:328.0px;"><div class="event-time">10:00–14:00</div><div class="event-items"><div class="event-item"><div class="event-title">フットゴルフ</div><div class="event-sub">サッカー×ゴルフ</div></div></div></div></div></div></div><div class="place-column lane-count-1" style="grid-column:5;"><div class="lane-grid lanes-1"><div class="lane lane-1"><div class="event-card is-highlight" style="top:88.0px;height:76.0px;"><div class="event-time">10:00–11:00</div><div class="event-items"><div class="event-item"><div class="event-title">エンジョイ!親子サッカー!</div><div class="event-sub">1回目 / 第2グラウンド</div></div></div></div><div class="event-card is-highlight" style="top:214.0px;height:76.0px;"><div class="event-time">11:30–12:30</div><div class="event-items"><div class="event-item"><div class="event-title">エンジョイ!親子サッカー!</div><div class="event-sub">2回目 / 第2グラウンド</div></div></div></div></div></div></div><div class="place-column lane-count-1" style="grid-column:6;"><div class="lane-grid lanes-1"><div class="lane lane-1"><div class="event-card is-highlight" style="top:4.0px;height:328.0px;"><div class="event-time">09:00–13:00</div><div class="event-items"><div class="event-item"><div class="event-title">ミニサッカー大会</div><div class="event-sub">第3グラウンド</div></div></div></div></div></div></div><div class="place-column lane-count-1" style="grid-column:7;"><div class="lane-grid lanes-1"><div class="lane lane-1"><div class="event-card is-highlight" style="top:4.0px;height:328.0px;"><div class="event-time">09:00–13:00</div><div class="event-items"><div class="event-item"><div class="event-title">PK大会</div><div class="event-sub">第4グラウンド</div></div></div></div></div></div></div><div class="place-column lane-count-3" style="grid-column:8;"><div class="lane-grid lanes-3"><div class="lane lane-3"><div class="event-card" style="top:172.0px;height:328.0px;"><div class="event-time">11:00–15:00</div><div class="event-items"><div class="event-item"><div class="event-title">ネーム&amp;ナンバー受取</div><div class="event-sub">C7ゲート217付近</div></div></div></div></div><div class="lane lane-3"><div class="event-card" style="top:172.0px;height:454.0px;"><div class="event-time">11:00–16:30</div><div class="event-items"><div class="event-item"><div class="event-title">MDP販売</div><div class="event-sub">A2ゲート付近 / B3ゲート付近 / C7ゲート付近</div></div></div></div></div><div class="lane lane-3"><div class="event-card is-highlight is-short" style="top:214.0px;height:82px;"><div class="event-time">11:30–12:00</div><div class="event-items"><div class="event-item"><div class="event-title">URAWA KIDS MATCH</div><div class="event-sub">メインピッチ / 11:35頃キックオフ</div></div></div></div></div></div></div><div class="place-column lane-count-1 gray-only-col" style="grid-column:9;"><div class="lane-grid lanes-1">
 
-    <div class="board-frame" id="boardFrame">
-      <div class="board-scale" id="boardScale">
-        <div class="board" id="board">
-          <div class="corner">時間</div>
-          <div class="header-cell" style="left:68px;width:165px">南広場</div><div class="header-cell" style="left:233px;width:165px">南広場ファンショップ</div><div class="header-cell" style="left:398px;width:165px">もみの木広場</div><div class="header-cell" style="left:563px;width:165px">大門上池調節池</div><div class="header-cell" style="left:728px;width:165px">第2G</div><div class="header-cell" style="left:893px;width:165px">第3G</div><div class="header-cell" style="left:1058px;width:165px">第4G</div><div class="header-cell" style="left:1223px;width:165px">南門内</div><div class="header-cell" style="left:1388px;width:165px">ペデ下/案内所</div><div class="header-cell" style="left:1553px;width:165px">場内コンコース</div><div class="header-cell" style="left:1718px;width:165px">場内ゲート/ピッチ</div>
-          <div class="hline major" style="top:48px"></div><div class="hline minor" style="top:98px"></div><div class="hline major" style="top:148px"></div><div class="hline minor" style="top:198px"></div><div class="hline major" style="top:248px"></div><div class="hline minor" style="top:298px"></div><div class="hline major" style="top:348px"></div><div class="hline minor" style="top:398px"></div><div class="hline major" style="top:448px"></div><div class="hline minor" style="top:498px"></div><div class="hline major" style="top:548px"></div><div class="hline minor" style="top:598px"></div><div class="hline major" style="top:648px"></div><div class="hline minor" style="top:698px"></div><div class="hline major" style="top:748px"></div><div class="hline minor" style="top:798px"></div><div class="hline major" style="top:848px"></div>
-          <div class="vline" style="left:68px"></div><div class="vline" style="left:233px"></div><div class="vline" style="left:398px"></div><div class="vline" style="left:563px"></div><div class="vline" style="left:728px"></div><div class="vline" style="left:893px"></div><div class="vline" style="left:1058px"></div><div class="vline" style="left:1223px"></div><div class="vline" style="left:1388px"></div><div class="vline" style="left:1553px"></div><div class="vline" style="left:1718px"></div><div class="vline" style="left:1883px"></div>
-          <div class="time-label" style="top:48px">09:00</div><div class="time-label" style="top:98px">09:30</div><div class="time-label" style="top:148px">10:00</div><div class="time-label" style="top:198px">10:30</div><div class="time-label" style="top:248px">11:00</div><div class="time-label" style="top:298px">11:30</div><div class="time-label" style="top:348px">12:00</div><div class="time-label" style="top:398px">12:30</div><div class="time-label" style="top:448px">13:00</div><div class="time-label" style="top:498px">13:30</div><div class="time-label" style="top:548px">14:00</div><div class="time-label" style="top:598px">14:30</div><div class="time-label" style="top:648px">15:00</div><div class="time-label" style="top:698px">15:30</div><div class="time-label" style="top:748px">16:00</div><div class="time-label" style="top:798px">16:30</div>
-          <div class="marker" style="top:248.0px;border-top-color:#dc262655;"><span style="background:#dc2626">11:00 開場</span></div><div class="marker" style="top:548.0px;border-top-color:#11182755;z-index:30;"><span style="background:#111827">14:00 KICK OFF</span></div><div class="marker" style="top:648.0px;border-top-color:#1d4ed855;"><span style="background:#1d4ed8">15:00 HT終了目安</span></div><div class="marker" style="top:748.0px;border-top-color:#04785755;"><span style="background:#047857">16:00 試合終了目安</span></div>
-          <div class="group-card is-default" style="left:74.0px;top:152.0px;width:153.0px;height:392.0px;border-top-color:#6b7280;"><div class="group-time">10:00–14:00</div><div class="group-items" style="padding-top:118px;"><div class="group-item is-default"><div class="group-item-title">国大セミナー</div><div class="group-item-sub">オリジナル立体シール作り / 最終受付13:20</div></div><div class="group-item is-default"><div class="group-item-title">イコム</div><div class="group-item-sub">トランクデイズ抽選会</div></div><div class="group-item is-default"><div class="group-item-title">明治安田</div><div class="group-item-sub">血管年齢測定会</div></div><div class="group-item is-default"><div class="group-item-title">MDP特設ブース</div><div class="group-item-sub">場外南広場特設ブース</div></div></div></div><div class="group-card is-highlight short-overlay" style="left:78px;top:298px;width:145px;height:100px;border-top-color:#dc2626;z-index:8;background:#fff;box-shadow:0 6px 14px rgba(220,38,38,.12);overflow:visible;"><div class="group-time">11:30–12:00</div><div class="group-items" style=""><div class="group-item is-highlight"><div class="group-item-title">POLUS CM撮影</div><div class="group-item-sub">南広場</div></div></div></div><div class="group-card is-default" style="left:239.0px;top:152.0px;width:73.5px;height:392.0px;border-top-color:#6b7280;"><div class="group-time">10:00–14:00</div><div class="group-items" style=""><div class="group-item is-default"><div class="group-item-title">ネーム&amp;ナンバー受付</div><div class="group-item-sub">レジブース横 / 受付のみ</div></div></div></div><div class="group-card is-default" style="left:318.5px;top:152.0px;width:73.5px;height:642.0px;border-top-color:#6b7280;"><div class="group-time">10:00–16:30</div><div class="group-items" style=""><div class="group-item is-default"><div class="group-item-title">MDP販売</div><div class="group-item-sub">場外南広場ファンショップ内</div></div></div></div><div class="group-card is-highlight" style="left:404.0px;top:152.0px;width:153.0px;height:392.0px;border-top-color:#dc2626;"><div class="group-time">10:00–14:00</div><div class="group-items" style=""><div class="group-item is-highlight"><div class="group-item-title">ビリッカー</div><div class="group-item-sub">サッカー×ビリヤード</div></div><div class="group-item is-highlight"><div class="group-item-title">フットダーツ</div><div class="group-item-sub">サッカー×ダーツ</div></div><div class="group-item is-highlight"><div class="group-item-title">1vs1</div><div class="group-item-sub">ストリートサッカー(PANNA)</div></div><div class="group-item is-highlight"><div class="group-item-title">3vs3</div><div class="group-item-sub">ストリートサッカー</div></div><div class="group-item is-highlight"><div class="group-item-title">サブサッカー</div><div class="group-item-sub">サッカー×テーブルゲーム</div></div><div class="group-item is-highlight"><div class="group-item-title">ドリブルゲーム</div><div class="group-item-sub">障害物コース体験</div></div></div></div><div class="group-card is-highlight" style="left:569.0px;top:152.0px;width:153.0px;height:392.0px;border-top-color:#dc2626;"><div class="group-time">10:00–14:00</div><div class="group-items" style=""><div class="group-item is-highlight"><div class="group-item-title">フットゴルフ</div><div class="group-item-sub">サッカー×ゴルフ</div></div></div></div><div class="group-card is-highlight" style="left:734.0px;top:152.0px;width:153.0px;height:92.0px;border-top-color:#dc2626;"><div class="group-time">10:00–11:00</div><div class="group-items" style=""><div class="group-item is-highlight"><div class="group-item-title">エンジョイ!親子サッカー!</div><div class="group-item-sub">1回目 / 埼玉スタジアム2002 第2グラウンド</div></div></div></div><div class="group-card is-highlight" style="left:734.0px;top:302.0px;width:153.0px;height:92.0px;border-top-color:#dc2626;"><div class="group-time">11:30–12:30</div><div class="group-items" style=""><div class="group-item is-highlight"><div class="group-item-title">エンジョイ!親子サッカー!</div><div class="group-item-sub">2回目 / 埼玉スタジアム2002 第2グラウンド</div></div></div></div><div class="group-card is-highlight" style="left:899.0px;top:52.0px;width:153.0px;height:392.0px;border-top-color:#dc2626;"><div class="group-time">09:00–13:00</div><div class="group-items" style=""><div class="group-item is-highlight"><div class="group-item-title">ミニサッカー大会</div><div class="group-item-sub">埼玉スタジアム2002 第3グラウンド</div></div></div></div><div class="group-card is-highlight" style="left:1064.0px;top:52.0px;width:153.0px;height:392.0px;border-top-color:#dc2626;"><div class="group-time">09:00–13:00</div><div class="group-items" style=""><div class="group-item is-highlight"><div class="group-item-title">PK大会</div><div class="group-item-sub">埼玉スタジアム2002 第4グラウンド</div></div></div></div><div class="group-card is-default" style="left:1229.0px;top:252.0px;width:153.0px;height:292.0px;border-top-color:#6b7280;"><div class="group-time">11:00–14:00</div><div class="group-items" style=""><div class="group-item is-default"><div class="group-item-title">ホームタウン&amp;ハートフル</div><div class="group-item-sub">シュートチャレンジ / レディア募金受付</div></div><div class="group-item is-default"><div class="group-item-title">さいたま市ブース</div><div class="group-item-sub">みんなのアプリPR / デジタル抽選会</div></div><div class="group-item is-default"><div class="group-item-title">埼玉県ブース</div><div class="group-item-sub">起き上がり小法師の絵付け体験</div></div><div class="group-item is-default"><div class="group-item-title">SFP×SDGsブース</div><div class="group-item-sub">プラ製袋回収BOX / エコトークン特典</div></div><div class="group-item is-default"><div class="group-item-title">キャップDEまつり</div><div class="group-item-sub">SFP×SDGsブース内</div></div><div class="group-item is-default"><div class="group-item-title">シーズンチケット問合せ</div><div class="group-item-sub">南門チケットブース横</div></div></div></div><div class="group-card is-default" style="left:1394.0px;top:252.0px;width:153.0px;height:542.0px;border-top-color:#6b7280;"><div class="group-time">11:00–16:30</div><div class="group-items" style=""><div class="group-item is-default"><div class="group-item-title">ポイント交換</div><div class="group-item-sub">南門内ペデストリアンデッキ下</div></div><div class="group-item is-default"><div class="group-item-title">来場ポイント登録</div><div class="group-item-sub">南門内ペデ下 / 北門内案内所横</div></div><div class="group-item is-default"><div class="group-item-title">REGULAR会員 入会特典引換</div><div class="group-item-sub">南門内ペデストリアンデッキ下</div></div><div class="group-item is-default"><div class="group-item-title">荷物一時預かり</div><div class="group-item-sub">南門内ペデストリアンデッキ下</div></div><div class="group-item is-default"><div class="group-item-title">サポートデスク</div><div class="group-item-sub">南門内ペデストリアンデッキ下</div></div></div></div><div class="group-card is-default" style="left:1559.0px;top:252.0px;width:73.5px;height:392.0px;border-top-color:#6b7280;"><div class="group-time">11:00–15:00</div><div class="group-items" style=""><div class="group-item is-default"><div class="group-item-title">デザインチケット引換</div><div class="group-item-sub">A4ゲート内特設デスク</div></div><div class="group-item is-default"><div class="group-item-title">レディア募金</div><div class="group-item-sub">メイン/バックロアーインフォメーション</div></div></div></div><div class="group-card is-default" style="left:1638.5px;top:252.0px;width:73.5px;height:592.0px;border-top-color:#6b7280;"><div class="group-time">11:00–17:00</div><div class="group-items" style=""><div class="group-item is-default"><div class="group-item-title">障がい者アート展</div><div class="group-item-sub">A7付近 / A8ショーケース</div></div><div class="group-item is-default"><div class="group-item-title">JA展示</div><div class="group-item-sub">A3ゲート付近</div></div><div class="group-item is-default"><div class="group-item-title">サステナブル来場展示</div><div class="group-item-sub">A4ゲート付近</div></div></div></div><div class="group-card is-default" style="left:1724px;top:252.0px;width:153px;height:542.0px;border-top-color:#6b7280;"><div class="group-time">11:00–16:30</div><div class="group-items" style="padding-top:118px;"><div class="group-item is-default"><div class="group-item-title">MDP販売</div><div class="group-item-sub">11:00–16:30 / A2ゲート付近・B3ゲート付近・C7ゲート付近</div></div><div class="group-item is-default"><div class="group-item-title">ネーム&amp;ナンバー受取</div><div class="group-item-sub">11:00–15:00 / C7ゲート217付近</div></div></div></div><div class="group-card is-highlight short-overlay" style="left:1728px;top:298.0px;width:145px;height:102px;border-top-color:#dc2626;z-index:8; background:#fff; box-shadow:0 6px 14px rgba(220,38,38,.12);overflow:visible;"><div class="group-time">11:30–12:00</div><div class="group-items" style=""><div class="group-item is-highlight"><div class="group-item-title">URAWA KIDS MATCH</div><div class="group-item-sub">メインピッチ / 11:35頃キックオフ</div></div></div></div>
-        </div>
-      </div>
-    </div>
-  </div>
+
+<div class="lane lane-1">
+<div class="event-card" style="top:88.0px;height:328.0px;">
+<div class="event-time">10:00–14:00</div>
+<div class="event-items">
+<div class="event-item"><div class="event-title">国大セミナー</div><div class="event-sub">オリジナル立体シール作り / 最終受付13:20</div></div>
+<div class="event-item"><div class="event-title">イコム</div><div class="event-sub">トランクデイズ抽選会</div></div>
+<div class="event-item"><div class="event-title">明治安田</div><div class="event-sub">血管年齢測定会</div></div>
+<div class="event-item"><div class="event-title">MDP特設ブース</div><div class="event-sub">場外南広場特設ブース</div></div>
+</div>
+</div>
+<div class="event-card is-short" style="top:214.0px;height:72px;">
+<div class="event-time">11:30–12:00</div>
+<div class="event-items"><div class="event-item"><div class="event-title">POLUS CM撮影</div><div class="event-sub">南広場 / 11:30–12:00</div></div></div>
+</div>
+</div></div></div><div class="place-column lane-count-2 gray-only-col" style="grid-column:10;"><div class="lane-grid lanes-2"><div class="lane lane-2"><div class="event-card" style="top:88.0px;height:538.0px;"><div class="event-time">10:00–16:30</div><div class="event-items"><div class="event-item"><div class="event-title">MDP販売</div><div class="event-sub">場外南広場ファンショップ内</div></div></div></div></div><div class="lane lane-2"><div class="event-card" style="top:88.0px;height:328.0px;"><div class="event-time">10:00–14:00</div><div class="event-items"><div class="event-item"><div class="event-title">ネーム&amp;ナンバー受付</div><div class="event-sub">レジブース横 / 受付のみ</div></div></div></div></div></div></div><div class="place-column lane-count-1 gray-only-col" style="grid-column:11;"><div class="lane-grid lanes-1"><div class="lane lane-1"><div class="event-card" style="top:172.0px;height:244.0px;"><div class="event-time">11:00–14:00</div><div class="event-items"><div class="event-item"><div class="event-title">ホームタウン&amp;ハートフル</div><div class="event-sub">シュートチャレンジ / レディア募金受付</div></div><div class="event-item"><div class="event-title">さいたま市ブース</div><div class="event-sub">みんなのアプリPR / デジタル抽選会</div></div><div class="event-item"><div class="event-title">埼玉県ブース</div><div class="event-sub">起き上がり小法師の絵付け体験</div></div><div class="event-item"><div class="event-title">SFP×SDGsブース</div><div class="event-sub">プラ製袋回収BOX / エコトークン特典</div></div><div class="event-item"><div class="event-title">キャップDEまつり</div><div class="event-sub">SFP×SDGsブース内</div></div><div class="event-item"><div class="event-title">シーズンチケット問合せ</div><div class="event-sub">南門チケットブース横</div></div></div></div></div></div></div><div class="place-column lane-count-1 gray-only-col" style="grid-column:12;"><div class="lane-grid lanes-1"><div class="lane lane-1"><div class="event-card" style="top:172.0px;height:454.0px;"><div class="event-time">11:00–16:30</div><div class="event-items"><div class="event-item"><div class="event-title">ポイント交換</div><div class="event-sub">南門内ペデストリアンデッキ下</div></div><div class="event-item"><div class="event-title">来場ポイント登録</div><div class="event-sub">南門内ペデ下 / 北門内案内所横</div></div><div class="event-item"><div class="event-title">REGULAR会員 入会特典引換</div><div class="event-sub">南門内ペデストリアンデッキ下</div></div><div class="event-item"><div class="event-title">荷物一時預かり</div><div class="event-sub">南門内ペデストリアンデッキ下</div></div><div class="event-item"><div class="event-title">サポートデスク</div><div class="event-sub">南門内ペデストリアンデッキ下</div></div></div></div></div></div></div><div class="place-column lane-count-2 gray-only-col" style="grid-column:13;"><div class="lane-grid lanes-2"><div class="lane lane-2"><div class="event-card" style="top:172.0px;height:328.0px;"><div class="event-time">11:00–15:00</div><div class="event-items"><div class="event-item"><div class="event-title">デザインチケット引換</div><div class="event-sub">A4ゲート内特設デスク</div></div><div class="event-item"><div class="event-title">レディア募金</div><div class="event-sub">メイン/バックロアーインフォメーション</div></div></div></div></div><div class="lane lane-2"><div class="event-card" style="top:172.0px;height:496.0px;"><div class="event-time">11:00–17:00</div><div class="event-items"><div class="event-item"><div class="event-title">障がい者アート展</div><div class="event-sub">A7付近 / A8ショーケース</div></div><div class="event-item"><div class="event-title">JA展示</div><div class="event-sub">A3ゲート付近</div></div><div class="event-item"><div class="event-title">サステナブル来場展示</div><div class="event-sub">A4ゲート付近</div></div></div></div></div></div></div></div>
+</section>
+</div>
 <script>
-(function() {
-  const frame = document.getElementById('boardFrame');
-  const scaleWrap = document.getElementById('boardScale');
+(async function() {
+  const root = document.getElementById('captureRoot');
   const board = document.getElementById('board');
-  const page = document.querySelector('.page');
-
-  function wrapBoardText() {
-    document.querySelectorAll('.corner, .header-cell, .time-label, .marker span').forEach(el => {
-      if (el.dataset.textFixed === '1') return;
-      el.innerHTML = `<span class="text-fix-center">${el.innerHTML}</span>`;
-      el.dataset.textFixed = '1';
-    });
+  const toggleSubsBtn = document.getElementById('toggleSubs');
+  async function renderCanvas() {
+    return await html2canvas(root, { backgroundColor:'#ffffff', useCORS:true, scale:2 });
   }
-
-  function fitBoard() {
-    const naturalW = board.offsetWidth;
-    const naturalH = board.offsetHeight;
-    const frameTop = frame.getBoundingClientRect().top;
-    const availableW = Math.max(320, frame.clientWidth);
-    const availableH = Math.max(220, window.innerHeight - frameTop - 8);
-    const scaleX = availableW / naturalW;
-    const scaleY = availableH / naturalH;
-    const textFixX = scaleX === 0 ? 1 : (scaleY / scaleX);
-    document.documentElement.style.setProperty('--text-fix-x', textFixX.toFixed(4));
-    scaleWrap.style.transform = `scale(${scaleX}, ${scaleY})`;
-    scaleWrap.style.width = availableW + 'px';
-    scaleWrap.style.height = availableH + 'px';
-    frame.style.height = (availableH + 2) + 'px';
-  }
-
-  async function renderPageCanvas() {
-    const prevTransform = scaleWrap.style.transform;
-    const prevWidth = scaleWrap.style.width;
-    const prevHeight = scaleWrap.style.height;
-    const prevFrameHeight = frame.style.height;
-    scaleWrap.style.transform = 'scale(1,1)';
-    scaleWrap.style.width = board.offsetWidth + 'px';
-    scaleWrap.style.height = board.offsetHeight + 'px';
-    frame.style.height = (board.offsetHeight + 2) + 'px';
-    await new Promise(resolve => requestAnimationFrame(resolve));
-    const canvas = await html2canvas(page, {
-      backgroundColor: '#ffffff',
-      useCORS: true,
-      scale: 2
-    });
-    scaleWrap.style.transform = prevTransform;
-    scaleWrap.style.width = prevWidth;
-    scaleWrap.style.height = prevHeight;
-    frame.style.height = prevFrameHeight;
-    return canvas;
-  }
-
   async function downloadPng() {
     const btn = document.getElementById('downloadPng');
-    const oldText = btn.textContent;
+    const old = btn.textContent;
     btn.textContent = '書き出し中…';
     try {
-      const canvas = await renderPageCanvas();
-      const link = document.createElement('a');
-      link.download = 'urawa_event_football_timetable_20260425.png';
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-    } finally {
-      btn.textContent = oldText;
-      fitBoard();
-    }
+      const canvas = await renderCanvas();
+      const a = document.createElement('a');
+      a.download = 'urawa_event_football_timetable_20260425_v23.png';
+      a.href = canvas.toDataURL('image/png');
+      a.click();
+    } finally { btn.textContent = old; }
   }
-
   async function downloadPdf() {
     const btn = document.getElementById('downloadPdf');
-    const oldText = btn.textContent;
+    const old = btn.textContent;
     btn.textContent = '書き出し中…';
     try {
-      const canvas = await renderPageCanvas();
+      const canvas = await renderCanvas();
       const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a3' });
+      const pdf = new jsPDF({ orientation:'landscape', unit:'mm', format:'a3' });
       const pageW = pdf.internal.pageSize.getWidth();
       const pageH = pdf.internal.pageSize.getHeight();
       const ratio = Math.min(pageW / canvas.width, pageH / canvas.height);
-      const renderW = canvas.width * ratio;
-      const renderH = canvas.height * ratio;
-      const x = (pageW - renderW) / 2;
-      const y = (pageH - renderH) / 2;
-      pdf.addImage(canvas.toDataURL('image/png'), 'PNG', x, y, renderW, renderH);
-      pdf.save('urawa_event_football_timetable_20260425.pdf');
-    } finally {
-      btn.textContent = oldText;
-      fitBoard();
-    }
+      const w = canvas.width * ratio;
+      const h = canvas.height * ratio;
+      const x = (pageW - w) / 2;
+      const y = (pageH - h) / 2;
+      pdf.addImage(canvas.toDataURL('image/png'), 'PNG', x, y, w, h);
+      pdf.save('urawa_event_football_timetable_20260425_v23.pdf');
+    } finally { btn.textContent = old; }
   }
 
-  wrapBoardText();
-  window.addEventListener('load', fitBoard);
-  window.addEventListener('resize', fitBoard);
+  function enhanceShortCards() {
+        const boardRect = board.getBoundingClientRect();
+    document.querySelectorAll('.event-card.is-short').forEach(card => {
+      const title = card.querySelector('.event-title')?.textContent?.trim() || '';
+      const sub = card.querySelector('.event-sub')?.textContent?.trim() || '';
+      card.querySelector('.event-time')?.style.setProperty('display', 'none');
+      card.querySelector('.event-sub')?.style.setProperty('display', 'none');
+      let bubble = card.querySelector('.short-bubble');
+      if (!bubble) {
+        bubble = document.createElement('div');
+        bubble.className = 'short-bubble';
+        bubble.innerHTML = `<div class="short-bubble-title">${title}</div><div class="short-bubble-sub">${sub}</div>`;
+        card.appendChild(bubble);
+      }
+      bubble.classList.remove('align-right');
+      const bubbleRect = bubble.getBoundingClientRect();
+      const cardRect = card.getBoundingClientRect();
+      const estimatedRight = cardRect.left - boardRect.left + bubbleRect.width;
+      if (estimatedRight > boardRect.width - 8) bubble.classList.add('align-right');
+    });
+  }
+  enhanceShortCards();
+
+  function applySubColumnState(collapsed) {
+    board.classList.toggle('sub-collapsed', collapsed);
+    if (toggleSubsBtn) {
+      toggleSubsBtn.textContent = collapsed ? 'サブ列を表示' : 'サブ列を非表示';
+      toggleSubsBtn.classList.toggle('is-active', collapsed);
+    }
+    try { localStorage.setItem('urawa_tt_subcols_hidden', collapsed ? '1' : '0'); } catch(e) {}
+    requestAnimationFrame(enhanceShortCards);
+  }
+
+  if (toggleSubsBtn) {
+    let initialCollapsed = false;
+    try { initialCollapsed = localStorage.getItem('urawa_tt_subcols_hidden') === '1'; } catch(e) {}
+    applySubColumnState(initialCollapsed);
+    toggleSubsBtn.addEventListener('click', () => {
+      applySubColumnState(!board.classList.contains('sub-collapsed'));
+    });
+  }
+
+
   document.getElementById('downloadPng').addEventListener('click', downloadPng);
   document.getElementById('downloadPdf').addEventListener('click', downloadPdf);
+  window.addEventListener('resize', enhanceShortCards);
 })();
 </script>
 </body>
